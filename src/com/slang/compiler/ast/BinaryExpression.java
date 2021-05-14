@@ -7,7 +7,7 @@ package com.slang.compiler.ast;
  * @author Midhun A Darvin
  * @version 1.0
  */
-public class BinaryExpression implements Expression {
+public class BinaryExpression extends Expression {
     private Expression _ex1, _ex2;
     private OPERATOR _op;
 

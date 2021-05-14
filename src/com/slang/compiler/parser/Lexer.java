@@ -1,5 +1,7 @@
 package com.slang.compiler.parser;
 
+import java.util.Locale;
+
 /**
  * A naive Lexical analyzer which looks for operators , Parenthesis
  * and number. All numbers are treated as IEEE doubles. Only numbers
@@ -14,6 +16,7 @@ public class Lexer {
     int index;     // index into a character
     int length;    // Length of the string
     double number; // Last grabbed number from the stream
+    private String variableName;
 
     /**
      * Constructor
@@ -24,6 +27,10 @@ public class Lexer {
         index = 0;
     }
 
+    private boolean isNotEndOfInput() {
+        return index < length;
+    }
+
     /**
      * Grab the next token from the stream
      */
@@ -31,7 +38,7 @@ public class Lexer {
         TOKEN tok = TOKEN.ILLEGAL_TOKEN;
 
         /* Skip the white space */
-        while (index < length && (IExpr.charAt(index) == ' ' || IExpr.charAt(index) == '\t'))
+        while (index < length && (IExpr.charAt(index) == ' ' || IExpr.charAt(index) == '\t' || IExpr.charAt(index) == '\r' || IExpr.charAt(index) == '\n'))
             index++;
 
         /* End of string ? return NULL; */
@@ -61,6 +68,10 @@ public class Lexer {
                 break;
             case ')':
                 tok = TOKEN.TOK_CPAREN;
+                index++;
+                break;
+            case ';':
+                tok = TOKEN.TOK_SEMI_COLON;
                 index++;
                 break;
             case '0':
@@ -93,10 +104,36 @@ public class Lexer {
             }
             break;
             default:
-                System.out.println("Error While Analyzing Tokens");
-                throw new Exception();
+                String keyword = readKeyWord();
+                TOKEN tempToken = TokenLookup.getToken(keyword.toLowerCase());
+                if(TOKEN.UNKNOWN == tempToken) {
+                    variableName = keyword;
+                    tok = TOKEN.VAR_NAME;
+                } else if(TOKEN.VAR == tempToken) {
+                    //Handling reserved getType on variable name
+                    variableName = keyword;
+                    tok = TOKEN.VAR;
+                } else {
+                    tok = tempToken;
+                }
         }
         return tok;
+    }
+
+    private String readKeyWord() {
+        StringBuilder keyWordBuilder = new StringBuilder();
+        //Iterating till end of module
+        while (isNotEndOfInput()) {
+            char c = IExpr.charAt(index);
+
+            if(Character.isAlphabetic(c) || (keyWordBuilder.length() > 0 && Character.isDigit(c))) {
+                keyWordBuilder.append(c);
+            } else {
+                break;
+            }
+            index++;
+        }
+        return keyWordBuilder.toString();
     }
 
     public double GetNumber() { return number; }

@@ -7,7 +7,7 @@ package com.slang.compiler.ast;
  * @author  Midhun A Darvin
  * @version 1.0
  */
-public class NumericConstant implements Expression {
+public class NumericConstant extends Expression {
     private double _value;
 
     /**
