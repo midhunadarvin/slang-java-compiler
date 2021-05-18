@@ -1,5 +1,7 @@
 package com.slang.compiler.ast;
 
+import com.slang.compiler.parser.SymbolInfo;
+
 /**
  * Abstract for Statement execution
  * Statement is what you Execute for it's Effect
@@ -8,5 +10,5 @@ package com.slang.compiler.ast;
  * @version 1.0
  */
 public abstract class Statement {
-    public abstract boolean Execute(RUNTIME_CONTEXT context);
+    public abstract SymbolInfo Execute(RUNTIME_CONTEXT context) throws Exception;
 }

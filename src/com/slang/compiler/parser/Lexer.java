@@ -15,8 +15,14 @@ public class Lexer {
     String IExpr;  // Expression string
     int index;     // index into a character
     int length;    // Length of the string
-    double number; // Last grabbed number from the stream
+    public double last_number; // Last grabbed number from the stream
+    public String last_string; // Last grabbed String
     private String variableName;
+    /**
+     * Current Token and Last Grabbed Token
+     */
+    protected TOKEN Current_Token; // Current Token
+    protected TOKEN Last_Token; // Penultimate token
 
     /**
      * Constructor
@@ -99,7 +105,7 @@ public class Lexer {
                     str += IExpr.charAt(index);
                     index++;
                 }
-                number = Double.parseDouble(str);
+                last_number = Double.parseDouble(str);
                 tok = TOKEN.TOK_DOUBLE;
             }
             break;
@@ -136,5 +142,5 @@ public class Lexer {
         return keyWordBuilder.toString();
     }
 
-    public double GetNumber() { return number; }
+    public double GetNumber() { return last_number; }
 }

@@ -5,15 +5,12 @@ import com.slang.compiler.parser.SymbolInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
-* A Context is necessary for Variable scope...will be used later
-*/
-public class RUNTIME_CONTEXT {
+public class COMPILATION_CONTEXT {
     /**
      * Symbol Table for this context
      */
     public SymbolTable symbolTable = new SymbolTable();
 
-    public RUNTIME_CONTEXT() {
+    public COMPILATION_CONTEXT() {
     }
 }

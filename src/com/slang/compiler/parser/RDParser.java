@@ -1,6 +1,9 @@
 package com.slang.compiler.parser;
 
 import com.slang.compiler.ast.*;
+import com.slang.compiler.ast.constants.NumericConstant;
+import com.slang.compiler.ast.statements.PrintLineStatement;
+import com.slang.compiler.ast.statements.PrintStatement;
 
 import java.util.ArrayList;
 

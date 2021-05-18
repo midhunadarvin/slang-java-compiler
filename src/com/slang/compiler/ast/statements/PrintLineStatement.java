@@ -1,9 +1,14 @@
-package com.slang.compiler.ast;
+package com.slang.compiler.ast.statements;
+
+import com.slang.compiler.ast.Expression;
+import com.slang.compiler.ast.RUNTIME_CONTEXT;
+import com.slang.compiler.ast.Statement;
+import com.slang.compiler.parser.SymbolInfo;
 
 /**
  * Implementation of Print Statement
  */
-public class PrintStatement extends Statement {
+public class PrintLineStatement extends Statement {
 
     /**
      * At this point of time , Print will spit the value of an Expression on the screen.
@@ -16,7 +21,7 @@ public class PrintStatement extends Statement {
      * @param ex This is expression that will be printed
      * @return void
      */
-    public PrintStatement(Expression ex)
+    public PrintLineStatement(Expression ex)
     {
         _ex = ex;
     }
@@ -30,9 +35,9 @@ public class PrintStatement extends Statement {
      * @return boolean
      */
     @Override
-    public boolean Execute(RUNTIME_CONTEXT context) {
-        double a = _ex.Evaluate(context);
-        System.out.print(a);
-        return true;
+    public SymbolInfo Execute(RUNTIME_CONTEXT context) throws Exception {
+        SymbolInfo a = _ex.Evaluate(context);
+        System.out.println(a);
+        return a;
     }
 }
