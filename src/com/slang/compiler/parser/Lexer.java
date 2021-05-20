@@ -68,6 +68,10 @@ public class Lexer {
                 tok = TOKEN.TOK_MUL;
                 index++;
                 break;
+            case '=':
+                tok = TOKEN.TOK_ASSIGN;
+                index++;
+                break;
             case '(':
                 tok = TOKEN.TOK_OPAREN;
                 index++;
@@ -106,15 +110,16 @@ public class Lexer {
                     index++;
                 }
                 last_number = Double.parseDouble(str);
-                tok = TOKEN.TOK_DOUBLE;
+                tok = TOKEN.TOK_NUMERIC;
             }
             break;
             default:
                 String keyword = readKeyWord();
-                TOKEN tempToken = TokenLookup.getToken(keyword.toLowerCase());
+                TOKEN tempToken = TokenLookup.getToken(keyword);
                 if(TOKEN.UNKNOWN == tempToken) {
                     variableName = keyword;
-                    tok = TOKEN.VAR_NAME;
+                    tok = TOKEN.TOK_UNQUOTED_STRING;
+                    last_string = keyword;
                 } else if(TOKEN.VAR == tempToken) {
                     //Handling reserved getType on variable name
                     variableName = keyword;

@@ -36,8 +36,21 @@ public class PrintLineStatement extends Statement {
      */
     @Override
     public SymbolInfo Execute(RUNTIME_CONTEXT context) throws Exception {
-        SymbolInfo a = _ex.Evaluate(context);
-        System.out.println(a);
-        return a;
+        SymbolInfo symbol = _ex.Evaluate(context);
+        switch (symbol.Type) {
+            case TYPE_BOOL: {
+                System.out.println(symbol.boolean_val);
+                break;
+            }
+            case TYPE_NUMERIC: {
+                System.out.println(symbol.double_val);
+                break;
+            }
+            case TYPE_STRING: {
+                System.out.println(symbol.string_val);
+                break;
+            }
+        }
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.slang.compiler.parser;
 
+import com.slang.compiler.ast.COMPILATION_CONTEXT;
 import com.slang.compiler.ast.Expression;
 
 /**
@@ -16,11 +17,11 @@ public class ExpressionBuilder {
         _expr_string = expr;
     }
 
-    public Expression GetExpression()
+    public Expression GetExpression(COMPILATION_CONTEXT context)
     {
         try {
             RDParser p = new RDParser(_expr_string);
-            return p.CallExpr();
+            return p.CallExpr(context);
         } catch (Exception exception) {
             return null;
         }

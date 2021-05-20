@@ -8,7 +8,6 @@ public enum TOKEN {
     TOK_SUB, // '-'
     TOK_OPAREN, // '('
     TOK_CPAREN, // ')'
-    TOK_DOUBLE, // '('
     TOK_PRINT, // Print Statement
     TOK_PRINTLN, // PrintLine
     TOK_SEMI_COLON, // Semi colon
@@ -16,7 +15,7 @@ public enum TOKEN {
     TOK_NULL,// End of string
     VAR,
     VAR_NAME,
-
+    TOK_UNQUOTED_STRING,
     TOK_VAR_NUMBER, // NUMBER data type
     TOK_VAR_STRING, // STRING data type
     TOK_VAR_BOOL, // Bool data type

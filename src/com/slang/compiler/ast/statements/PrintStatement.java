@@ -5,6 +5,8 @@ import com.slang.compiler.ast.RUNTIME_CONTEXT;
 import com.slang.compiler.ast.Statement;
 import com.slang.compiler.parser.SymbolInfo;
 
+import static com.slang.compiler.parser.TypeInfo.*;
+
 /**
  * Implementation of Print Statement
  */
@@ -36,8 +38,21 @@ public class PrintStatement extends Statement {
      */
     @Override
     public SymbolInfo Execute(RUNTIME_CONTEXT context) throws Exception {
-        SymbolInfo a = _ex.Evaluate(context);
-        System.out.print(a);
-        return a;
+        SymbolInfo symbol = _ex.Evaluate(context);
+        switch (symbol.Type) {
+            case TYPE_BOOL: {
+                System.out.print(symbol.boolean_val);
+                break;
+            }
+            case TYPE_NUMERIC: {
+                System.out.print(symbol.double_val);
+                break;
+            }
+            case TYPE_STRING: {
+                System.out.print(symbol.string_val);
+                break;
+            }
+        }
+        return null;
     }
 }

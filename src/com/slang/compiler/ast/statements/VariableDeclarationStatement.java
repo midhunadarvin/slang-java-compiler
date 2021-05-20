@@ -19,7 +19,7 @@ public class VariableDeclarationStatement extends Statement {
 
     @Override
     public SymbolInfo Execute(RUNTIME_CONTEXT context) {
-        context.symbolTable.put(m_inf.SymbolName, m_inf);
+        context.symbolTable.assign(m_inf.SymbolName, m_inf);
         var = new Variable(m_inf);
         return m_inf;
     }

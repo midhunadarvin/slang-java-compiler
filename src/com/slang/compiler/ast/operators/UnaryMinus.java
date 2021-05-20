@@ -9,7 +9,7 @@ import com.slang.compiler.parser.TypeInfo;
 /**
  * This node represents Unary Plus (+) operator
  */
-class UnaryMinus extends Expression {
+public class UnaryMinus extends Expression {
     /**
      * Plus has got a right expression (exp1 )
      * and a Associated type information
