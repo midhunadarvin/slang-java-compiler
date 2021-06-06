@@ -24,5 +24,24 @@ public enum TOKEN {
     TOK_BOOL_TRUE, // Boolean TRUE
     TOK_BOOL_FALSE, // Boolean FALSE
     TOK_STRING, // String Literal
-    TOK_ASSIGN // Assignment Symbol =
+    TOK_ASSIGN, // Assignment Symbol =
+
+    // Relational operator support
+    TOK_EQUALS, // '=='
+    TOK_NOT_EQUALS, // '<>'
+    TOK_GREATER_THAN, // '>'
+    TOK_GREATER_OR_EQUAL, // '>='
+    TOK_LESS_THAN, // '<'
+    TOK_LESS_OR_EQUAL, // '<='
+    TOK_AND, // '&&'
+    TOK_OR, // '||'
+    TOK_NOT, // '!
+
+    // Control structures support
+    TOK_IF, // IF
+    TOK_THEN, // Then
+    TOK_ELSE, // Else Statement
+    TOK_END_IF, // Endif Statement
+    TOK_WHILE, // WHILE
+    TOK_WHILE_END // While end Statement
 }

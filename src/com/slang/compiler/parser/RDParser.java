@@ -290,7 +290,7 @@ public class RDParser extends Lexer {
             Expression RetValue = Term(context);
             while (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
                 last_token = currentToken;
-                currentToken = GetToken();
+                getNextToken();
                 Expression e1 = Expr(context);
                 if (last_token == TOKEN.TOK_PLUS)
                     RetValue = new BinaryPlus(RetValue, e1);
@@ -339,12 +339,10 @@ public class RDParser extends Lexer {
             if (currentToken == TOKEN.TOK_NUMERIC) {
                 RetValue = new NumericConstant(GetNumber());
                 getNextToken();
-            }
-            else if (currentToken == TOKEN.TOK_STRING) {
+            } else if (currentToken == TOKEN.TOK_STRING) {
                 RetValue = new StringLiteral(last_string);
                 getNextToken();
-            }
-            else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
+            } else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
                 RetValue = new BooleanConstant(currentToken == TOKEN.TOK_BOOL_TRUE ? true : false);
                 getNextToken();
             } else if (currentToken == TOKEN.TOK_OPAREN) {

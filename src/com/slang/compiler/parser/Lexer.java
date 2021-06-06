@@ -60,16 +60,8 @@ public class Lexer {
                 tok = TOKEN.TOK_SUB;
                 index++;
                 break;
-            case '/':
-                tok = TOKEN.TOK_DIV;
-                index++;
-                break;
             case '*':
                 tok = TOKEN.TOK_MUL;
-                index++;
-                break;
-            case '=':
-                tok = TOKEN.TOK_ASSIGN;
                 index++;
                 break;
             case '(':
@@ -111,8 +103,79 @@ public class Lexer {
                 }
                 last_number = Double.parseDouble(str);
                 tok = TOKEN.TOK_NUMERIC;
+                break;
             }
-            break;
+            case '"': {
+                index++;
+                String keyword = "";
+                while (index < length && (IExpr.charAt(index) != '"')) {
+                    keyword += IExpr.charAt(index);
+                    index++;
+                }
+                tok = TOKEN.TOK_STRING;
+                last_string = keyword;
+                index++;
+                break;
+            }
+            case '!':
+                tok = TOKEN.TOK_NOT;
+                index++;
+                break;
+            case '>':
+                if (IExpr.charAt(index + 1) == '=') {
+                    tok = TOKEN.TOK_GREATER_OR_EQUAL;
+                    index += 2;
+                } else {
+                    tok = TOKEN.TOK_GREATER_THAN;
+                    index++;
+                }
+                break;
+            case '<':
+                if (IExpr.charAt(index + 1) == '=') {
+                    tok = TOKEN.TOK_LESS_OR_EQUAL;
+                    index += 2;
+                } else {
+                    tok = TOKEN.TOK_LESS_THAN;
+                    index++;
+                }
+                break;
+            case '=':
+                if (IExpr.charAt(index + 1) == '=') {
+                    tok = TOKEN.TOK_EQUALS;
+                    index += 2;
+                } else {
+                    tok = TOKEN.TOK_ASSIGN;
+                    index++;
+                }
+                break;
+            case '&':
+                if (IExpr.charAt(index + 1) == '&') {
+                    tok = TOKEN.TOK_AND;
+                    index += 2;
+                } else {
+                    tok = TOKEN.ILLEGAL_TOKEN;
+                    index++;
+                }
+                break;
+            case '|':
+                if (IExpr.charAt(index + 1) == '|') {
+                    tok = TOKEN.TOK_OR;
+                    index += 2;
+                } else {
+                    tok = TOKEN.ILLEGAL_TOKEN;
+                    index++;
+                }
+                break;
+            case '/':
+                if (IExpr.charAt(index + 1) == '/') {
+                    index += 2;
+                    skipToEndOfLine();
+                    return GetToken();
+                } else {
+                    tok = TOKEN.TOK_DIV;
+                    index++;
+                }
+                break;
             default:
                 String keyword = readKeyWord();
                 TOKEN tempToken = TokenLookup.getToken(keyword);
@@ -129,6 +192,12 @@ public class Lexer {
                 }
         }
         return tok;
+    }
+
+    private void skipToEndOfLine() {
+        while(index < length && IExpr.charAt(index) != '\n') {
+            index++;
+        }
     }
 
     private String readKeyWord() {

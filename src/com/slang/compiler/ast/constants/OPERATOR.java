@@ -1,4 +1,4 @@
-package com.slang.compiler.ast;
+package com.slang.compiler.ast.constants;
 
 public enum OPERATOR {
     PLUS('+'),

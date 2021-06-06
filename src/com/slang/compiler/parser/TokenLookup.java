@@ -12,6 +12,14 @@ public class TokenLookup {
         tokenHashMap.put("STRING", TOKEN.TOK_VAR_STRING);
         tokenHashMap.put("BOOLEAN", TOKEN.TOK_VAR_BOOL);
         tokenHashMap.put("NUMERIC", TOKEN.TOK_VAR_NUMBER);
+        // -------------- To support control structures
+        tokenHashMap.put("IF", TOKEN.TOK_IF);
+
+        tokenHashMap.put("WHILE", TOKEN.TOK_WHILE);
+        tokenHashMap.put("WEND", TOKEN.TOK_WHILE_END);
+        tokenHashMap.put("ELSE", TOKEN.TOK_ELSE);
+        tokenHashMap.put("ENDIF", TOKEN.TOK_END_IF);
+        tokenHashMap.put("THEN", TOKEN.TOK_THEN);
     }
     public static TOKEN getToken(String key) {
         if (tokenHashMap.get(key) != null) {
