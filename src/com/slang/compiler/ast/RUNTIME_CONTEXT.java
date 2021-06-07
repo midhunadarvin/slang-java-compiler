@@ -16,4 +16,7 @@ public class RUNTIME_CONTEXT {
 
     public RUNTIME_CONTEXT() {
     }
+
+    public RUNTIME_CONTEXT(TModule program) {
+    }
 }

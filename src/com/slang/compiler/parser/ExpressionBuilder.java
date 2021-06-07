@@ -2,6 +2,7 @@ package com.slang.compiler.parser;
 
 import com.slang.compiler.ast.COMPILATION_CONTEXT;
 import com.slang.compiler.ast.Expression;
+import com.slang.compiler.ast.ProcedureBuilder;
 
 /**
  * Expression Builder
@@ -17,8 +18,7 @@ public class ExpressionBuilder {
         _expr_string = expr;
     }
 
-    public Expression GetExpression(COMPILATION_CONTEXT context)
-    {
+    public Expression GetExpression(ProcedureBuilder context) {
         try {
             RDParser p = new RDParser(_expr_string);
             return p.CallExpr(context);

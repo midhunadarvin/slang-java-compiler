@@ -18,11 +18,6 @@ public class Lexer {
     public double last_number; // Last grabbed number from the stream
     public String last_string; // Last grabbed String
     private String variableName;
-    /**
-     * Current Token and Last Grabbed Token
-     */
-    protected TOKEN Current_Token; // Current Token
-    protected TOKEN Last_Token; // Penultimate token
 
     /**
      * Constructor
