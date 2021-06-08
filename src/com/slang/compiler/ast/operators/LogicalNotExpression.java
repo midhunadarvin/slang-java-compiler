@@ -12,6 +12,7 @@ public class LogicalNotExpression extends Expression {
     TypeInfo _type;
 
     public LogicalNotExpression(Expression e1) {
+        super();
         ex1 = e1;
     }
 

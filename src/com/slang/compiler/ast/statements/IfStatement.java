@@ -27,6 +27,13 @@ public class IfStatement extends Statement {
      */
     private ArrayList<Statement> false_part;
 
+    public IfStatement(Expression condition, ArrayList<Statement> true_part, ArrayList<Statement> false_part) {
+        super();
+        this.condition = condition;
+        this.true_part = true_part;
+        this.false_part = false_part;
+    }
+
     @Override
     public SymbolInfo Execute(RUNTIME_CONTEXT context) throws Exception {
 
@@ -46,7 +53,7 @@ public class IfStatement extends Statement {
                     exception.printStackTrace();
                 }
             });
-        } else {
+        } else if (false_part != null) {
             // if cond is false
             false_part.forEach(statement -> {
                 try {

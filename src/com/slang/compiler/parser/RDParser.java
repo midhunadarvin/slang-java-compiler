@@ -3,12 +3,10 @@ package com.slang.compiler.parser;
 import com.slang.compiler.ast.*;
 import com.slang.compiler.ast.constants.BooleanConstant;
 import com.slang.compiler.ast.constants.NumericConstant;
+import com.slang.compiler.ast.constants.RELATION_OPERATOR;
 import com.slang.compiler.ast.constants.StringLiteral;
 import com.slang.compiler.ast.operators.*;
-import com.slang.compiler.ast.statements.AssignmentStatement;
-import com.slang.compiler.ast.statements.PrintLineStatement;
-import com.slang.compiler.ast.statements.PrintStatement;
-import com.slang.compiler.ast.statements.VariableDeclarationStatement;
+import com.slang.compiler.ast.statements.*;
 
 import java.util.ArrayList;
 
@@ -62,6 +60,7 @@ public class RDParser extends Lexer {
 
     /**
      * Parses the Expression String and gets the statements.
+     *
      * @param context
      */
     public ArrayList Parse(ProcedureBuilder context) throws Exception {
@@ -84,7 +83,7 @@ public class RDParser extends Lexer {
     public Expression CallExpr(ProcedureBuilder context) throws Exception {
         try {
             getNextToken();
-            return Expr(context);
+            return BooleanExpr(context);
         } catch (Exception exception) {
             System.out.println(exception);
             throw exception;
@@ -103,16 +102,12 @@ public class RDParser extends Lexer {
      * <printstmt> := PRINT <expr>;
      * <printlinestmt>:= printline <expr>;
      * <assignmentstmt>:= <variable> = value;
-     * <ifstmt>::= IF <expr> THEN <stmts> [ ELSE <stmts> ] ENDIF
-     * <whilestmt>::= WHILE <expr> <stmts> WEND
+     * <ifstmt>::= IF <BooleanExpr> THEN <stmts> [ ELSE <stmts> ] ENDIF
+     * <whilestmt>::= WHILE <BooleanExpr> <stmts> WEND
      * <type> := NUMERIC | STRING | BOOLEAN
      *
-     * <Expr> ::= <Term> | <Term> { + | - } <Expr>
-     * <Term> ::= <Factor> | <Factor> {*|/} <Term>
-     * <Factor>::= <number> | ( <expr> ) | {+|-} <factor> | <variable> | TRUE | FALSE
-     *
-     * <Expr> ::= <BinaryExpr>
-     * <BinaryExpr> ::= <LogicalExpr> LOGIC_OP <BinaryExpr>
+     * <BooleanExpr> ::= <BooleanExpr>
+     * <BooleanExpr> ::= <LogicalExpr> LOGIC_OP <BooleanExpr>
      * <LogicalExpr> ::= <RelationalExpr> REL_OP <LogicalExpr>
      * <RelationalExpr> ::= <Term> ADD_OP <RelationalExpr>
      * <Term> ::= <Factor> MUL_OP <Term>
@@ -126,10 +121,10 @@ public class RDParser extends Lexer {
         try {
             ArrayList arr = new ArrayList();
             while (
-                (currentToken != TOKEN.TOK_ELSE)
-                && (currentToken != TOKEN.TOK_END_IF)
-                && (currentToken != TOKEN.TOK_WHILE_END)
-                && (currentToken != TOKEN.TOK_NULL)
+                    (currentToken != TOKEN.TOK_ELSE)
+                            && (currentToken != TOKEN.TOK_END_IF)
+                            && (currentToken != TOKEN.TOK_WHILE_END)
+                            && (currentToken != TOKEN.TOK_NULL)
             ) {
                 Statement temp = Statement(context);
                 if (temp != null) {
@@ -144,13 +139,213 @@ public class RDParser extends Lexer {
     }
 
     /**
+     * Boolean Expression
+     * <BooleanExpr> ::= <BooleanExpr>
+     * <BooleanExpr> ::= <LogicalExpr> LOGIC_OP <BooleanExpr>
+     *
+     * @param context
+     */
+    private Expression BooleanExpr(ProcedureBuilder context) throws Exception {
+        try {
+            TOKEN last_token;
+            Expression RetValue = LogicalExpr(context);
+            while (currentToken == TOKEN.TOK_AND || currentToken == TOKEN.TOK_OR) {
+                last_token = currentToken;
+                getNextToken();
+                Expression e1 = BooleanExpr(context);
+                if (last_token == TOKEN.TOK_AND)
+                    RetValue = new LogicalExpression(TOKEN.TOK_AND, RetValue, e1);
+                else
+                    RetValue = new LogicalExpression(TOKEN.TOK_OR, RetValue, e1);
+            }
+            return RetValue;
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw exception;
+        }
+    }
+
+    /**
+     * Logical Expression
+     * <LogicalExpr> ::= <RelationalExpr> REL_OP <LogicalExpr>
+     *
+     * @param context
+     */
+    private Expression LogicalExpr(ProcedureBuilder context) throws Exception {
+        try {
+            TOKEN last_token;
+            Expression RetValue = RelationalExpr(context);
+            while (
+                    currentToken == TOKEN.TOK_EQUALS
+                            || currentToken == TOKEN.TOK_NOT_EQUALS
+                            || currentToken == TOKEN.TOK_GREATER_THAN
+                            || currentToken == TOKEN.TOK_LESS_THAN
+                            || currentToken == TOKEN.TOK_GREATER_OR_EQUAL
+                            || currentToken == TOKEN.TOK_LESS_OR_EQUAL
+            ) {
+                last_token = currentToken;
+                getNextToken();
+                Expression e1 = LogicalExpr(context);
+
+                switch (last_token) {
+                    case TOK_EQUALS: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_EQUALS, RetValue, e1);
+                        break;
+                    }
+                    case TOK_NOT_EQUALS: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_NOT_EQUALS, RetValue, e1);
+                        break;
+                    }
+                    case TOK_GREATER_THAN: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_GREATER_THAN, RetValue, e1);
+                        break;
+                    }
+                    case TOK_GREATER_OR_EQUAL: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_GREATER_OR_EQUAL, RetValue, e1);
+                        break;
+                    }
+                    case TOK_LESS_THAN: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_LESS_THAN, RetValue, e1);
+                        break;
+                    }
+                    case TOK_LESS_OR_EQUAL: {
+                        RetValue = new RelationExpression(RELATION_OPERATOR.TOK_LESS_OR_EQUAL, RetValue, e1);
+                        break;
+                    }
+                }
+            }
+            return RetValue;
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw exception;
+        }
+    }
+
+    /**
+     * Relational Expression
+     * <RelationalExpr> ::= <Term> ADD_OP <RelationalExpr>
+     *
+     * @param context
+     */
+    private Expression RelationalExpr(ProcedureBuilder context) throws Exception {
+        try {
+            TOKEN last_token;
+            Expression RetValue = Term(context);
+            while (
+                    currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB
+            ) {
+                last_token = currentToken;
+                getNextToken();
+                Expression e1 = RelationalExpr(context);
+                if (last_token == TOKEN.TOK_PLUS)
+                    RetValue = new BinaryPlus(RetValue, e1);
+                else
+                    RetValue = new BinaryMinus(RetValue, e1);
+            }
+            return RetValue;
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw exception;
+        }
+    }
+
+    /**
+     * Gets the Term
+     * <Term> ::= <Factor> | <Factor> {*|/} <Term>
+     *
+     * @param context
+     */
+    private Expression Term(ProcedureBuilder context) throws Exception {
+        try {
+            TOKEN last_token;
+            Expression RetValue = Factor(context);
+            while (currentToken == TOKEN.TOK_MUL || currentToken == TOKEN.TOK_DIV) {
+                last_token = currentToken;
+                getNextToken();
+                Expression e1 = Term(context);
+                if (last_token == TOKEN.TOK_MUL)
+                    RetValue = new BinaryMultiply(RetValue, e1);
+                else
+                    RetValue = new BinaryDivide(RetValue, e1);
+            }
+            return RetValue;
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw exception;
+        }
+    }
+
+    /**
+     * Gets the Term
+     * <Factor> ::= <TOK_DOUBLE> | ( <Exp> ) | { + | - } <Factor>
+     *
+     * @param context
+     */
+    public Expression Factor(ProcedureBuilder context) throws Exception {
+        try {
+            TOKEN last_token;
+            Expression RetValue = null;
+            if (currentToken == TOKEN.TOK_NUMERIC) {
+                RetValue = new NumericConstant(GetNumber());
+                getNextToken();
+            } else if (currentToken == TOKEN.TOK_STRING) {
+                RetValue = new StringLiteral(last_string);
+                getNextToken();
+            } else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
+                RetValue = new BooleanConstant(currentToken == TOKEN.TOK_BOOL_TRUE ? true : false);
+                getNextToken();
+            } else if (currentToken == TOKEN.TOK_OPAREN) {
+                getNextToken();
+                RetValue = BooleanExpr(context); // Recurse
+                if (currentToken != TOKEN.TOK_CPAREN) {
+                    System.out.println("Missing Closing Parenthesis\n");
+                    throw new Exception();
+                }
+                getNextToken();
+            } else if (currentToken == TOKEN.TOK_NOT) {
+                getNextToken();
+                RetValue = BooleanExpr(context);
+                RetValue = new LogicalNotExpression(RetValue);
+                return RetValue;
+            } else if (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
+                last_token = currentToken;
+                getNextToken();
+                RetValue = Factor(context);
+                if (last_token == TOKEN.TOK_PLUS)
+                    RetValue = new UnaryPlus(RetValue);
+                else if (last_token == TOKEN.TOK_SUB)
+                    RetValue = new UnaryMinus(RetValue);
+                getNextToken();
+            } else if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
+                ///
+                /// Variables
+                ///
+                String str = this.last_string;
+                SymbolInfo inf = context.getSymbolTable().get(str);
+                if (inf == null)
+                    throw new Exception("Undefined symbol");
+                getNextToken();
+                RetValue = new Variable(inf);
+            } else {
+                System.out.println("Illegal Token");
+                throw new Exception();
+            }
+            return RetValue;
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw exception;
+        }
+    }
+
+    /**
      * This Routine Queries Statement Type
      * to take the appropriate Branch...
      * Currently , only Print and PrintLine statement
      * are supported..
-     *
+     * <p>
      * if a line does not start with Print or PrintLine ..
      * an exception is thrown
+     *
      * @param context
      */
     private Statement Statement(ProcedureBuilder context) throws Exception {
@@ -175,14 +370,14 @@ public class RDParser extends Lexer {
                     returnVal = ParseAssignmentStatement(context);
                     getNextToken();
                     return returnVal;
-//                case TOK_IF:
-//                    returnVal = ParseIfStatement(context);
-//                    getNextToken();
-//                    return returnVal;
-//                case TOK_WHILE:
-//                    returnVal = ParseWhileStatement(context);
-//                    getNextToken();
-//                    return returnVal;
+                case TOK_IF:
+                    returnVal = ParseIfStatement(context);
+                    getNextToken();
+                    return returnVal;
+                case TOK_WHILE:
+                    returnVal = ParseWhileStatement(context);
+                    getNextToken();
+                    return returnVal;
                 default:
                     throw new Exception("Invalid statement");
             }
@@ -195,6 +390,7 @@ public class RDParser extends Lexer {
 
     /**
      * Parse Variable declaration statement
+     *
      * @param context
      */
     public Statement ParseVariableDeclarationStatement(ProcedureBuilder context) throws Exception {
@@ -227,7 +423,7 @@ public class RDParser extends Lexer {
             } else {
                 throw new Exception("invalid variable declaration");
             }
-        } catch(Exception exception) {
+        } catch (Exception exception) {
             System.out.println(exception);
             throw exception;
         }
@@ -236,6 +432,7 @@ public class RDParser extends Lexer {
     /**
      * Parse the Assignment Statement
      * <variable> = <expr>
+     *
      * @param context
      */
     public Statement ParseAssignmentStatement(ProcedureBuilder context) throws Exception {
@@ -257,7 +454,7 @@ public class RDParser extends Lexer {
         //-------- Skip the token to start the expression
         // parsing on the RHS
         getNextToken();
-        Expression exp = Expr(context);
+        Expression exp = BooleanExpr(context);
         //------------ Do the type analysis ...
         if (exp.TypeCheck(context.getContext()) != symbol.Type) {
             throw new Exception("Type mismatch in assignment");
@@ -283,12 +480,13 @@ public class RDParser extends Lexer {
      * <p>
      * if a line does not start with Print or PrintLine ..
      * an exception is thrown
+     *
      * @param context
      */
     private Statement ParsePrintStatement(ProcedureBuilder context) throws Exception {
         try {
             getNextToken();
-            Expression a = Expr(context);
+            Expression a = BooleanExpr(context);
             if (currentToken != TOKEN.TOK_SEMI_COLON) {
                 throw new Exception("; is expected");
             }
@@ -307,15 +505,16 @@ public class RDParser extends Lexer {
      * semi colon to terminate the line..
      * Once Parse Process is successful , we create a PrintLineStatement
      * Object..
-     *
+     * <p>
      * if a line does not start with Print or PrintLine ..
      * an exception is thrown
+     *
      * @param context
      */
     private Statement ParsePrintLNStatement(ProcedureBuilder context) throws Exception {
         try {
             getNextToken();
-            Expression a = Expr(context);
+            Expression a = BooleanExpr(context);
             if (currentToken != TOKEN.TOK_SEMI_COLON) {
                 throw new Exception("; is expected");
             }
@@ -331,137 +530,64 @@ public class RDParser extends Lexer {
      * <ifstmt>::= IF <expr> THEN <stmts> [ ELSE <stmts> ] ENDIF
      * <param name="pb"></param>
      */
-//    public Statement ParseIfStatement(ProcedureBuilder pb) throws Exception {
-//        try {
-//            getNextToken();
-//            ArrayList<Statement> true_part = null;
-//            ArrayList<Statement> false_part = null;
-//
-//            Expression exp = new BinaryExpression(pb); // Evaluate Expression
-//        } catch (Exception exception) {
-//            System.out.println(exception);
-//            throw exception;
-//        }
-//
-//        if (pb.TypeCheck(exp) != TYPE_INFO.TYPE_BOOL) {
-//            throw new Exception("Expects a boolean expression");
-//        }
-//        if (Current_Token != TOKEN.TOK_THEN) {
-//            CSyntaxErrorLog.AddLine(" Then Expected");
-//            CSyntaxErrorLog.AddLine(GetCurrentLine(SaveIndex()));
-//            throw new Exception(-100, "Then Expected", SaveIndex());
-//        }
-//        GetNext();
-//        true_part = StatementList(pb);
-//        if (Current_Token == TOKEN.TOK_ENDIF) {
-//            return new IfStatement(exp, true_part, false_part);
-//        }
-//        if (Current_Token != TOKEN.TOK_ELSE) {
-//            throw new Exception("ELSE expected");
-//        }
-//    }
-
-    /**
-     * Gets the Expression
-     * <Expr> ::= <Term> { + | - } <Expr>
-     * @param context
-     */
-    private Expression Expr(ProcedureBuilder context) throws Exception {
+    public Statement ParseIfStatement(ProcedureBuilder pb) throws Exception {
         try {
-            TOKEN last_token;
-            Expression RetValue = Term(context);
-            while (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
-                last_token = currentToken;
-                getNextToken();
-                Expression e1 = Expr(context);
-                if (last_token == TOKEN.TOK_PLUS)
-                    RetValue = new BinaryPlus(RetValue, e1);
-                else
-                    RetValue = new BinaryMinus(RetValue, e1);
+            getNextToken();
+            ArrayList<Statement> true_part = null;
+            ArrayList<Statement> false_part = null;
+
+            Expression exp = BooleanExpr(pb); // Evaluate Expression
+
+            if (pb.TypeCheck(exp) != TypeInfo.TYPE_BOOL) {
+                throw new Exception("Expects a boolean expression");
             }
-            return RetValue;
+
+            if (currentToken != TOKEN.TOK_THEN) {
+                System.out.println(" Then Expected");
+                throw new Exception("Then Expected");
+            }
+            getNextToken();
+
+            true_part = StatementList(pb);
+
+            if (currentToken == TOKEN.TOK_END_IF) {
+                return new IfStatement(exp, true_part, false_part);
+            }
+            if (currentToken != TOKEN.TOK_ELSE) {
+                throw new Exception("ELSE expected");
+            }
+            getNextToken();
+
+            false_part = StatementList(pb);
+
+            if (currentToken != TOKEN.TOK_END_IF) {
+                throw new Exception("END IF EXPECTED");
+            }
+            return new IfStatement(exp, true_part, false_part);
         } catch (Exception exception) {
             System.out.println(exception);
             throw exception;
         }
     }
 
-    /**
-     * Gets the Term
-     * <Term> ::= <Factor> | <Factor> {*|/} <Term>
-     * @param context
-     */
-    private Expression Term(ProcedureBuilder context) throws Exception {
+    public Statement ParseWhileStatement(ProcedureBuilder pb) throws Exception {
         try {
-            TOKEN last_token;
-            Expression RetValue = Factor(context);
-            while (currentToken == TOKEN.TOK_MUL || currentToken == TOKEN.TOK_DIV) {
-                last_token = currentToken;
-                getNextToken();
-                Expression e1 = Term(context);
-                if (last_token == TOKEN.TOK_MUL)
-                    RetValue = new BinaryMultiply(RetValue, e1);
-                else
-                    RetValue = new BinaryDivide(RetValue, e1);
-            }
-            return RetValue;
-        } catch (Exception exception) {
-            System.out.println(exception);
-            throw exception;
-        }
-    }
+            getNextToken();
+            Expression exp = BooleanExpr(pb);
 
-    /**
-     * Gets the Term
-     * <Factor> ::= <TOK_DOUBLE> | ( <Exp> ) | { + | - } <Factor>
-     * @param context
-     */
-    public Expression Factor(ProcedureBuilder context) throws Exception {
-        try {
-            TOKEN last_token;
-            Expression RetValue = null;
-            if (currentToken == TOKEN.TOK_NUMERIC) {
-                RetValue = new NumericConstant(GetNumber());
-                getNextToken();
-            } else if (currentToken == TOKEN.TOK_STRING) {
-                RetValue = new StringLiteral(last_string);
-                getNextToken();
-            } else if (currentToken == TOKEN.TOK_BOOL_FALSE || currentToken == TOKEN.TOK_BOOL_TRUE) {
-                RetValue = new BooleanConstant(currentToken == TOKEN.TOK_BOOL_TRUE ? true : false);
-                getNextToken();
-            } else if (currentToken == TOKEN.TOK_OPAREN) {
-                getNextToken();
-                RetValue = Expr(context); // Recurse
-                if (currentToken != TOKEN.TOK_CPAREN) {
-                    System.out.println("Missing Closing Parenthesis\n");
-                    throw new Exception();
-                }
-                getNextToken();
-            } else if (currentToken == TOKEN.TOK_PLUS || currentToken == TOKEN.TOK_SUB) {
-                last_token = currentToken;
-                getNextToken();
-                RetValue = Factor(context);
-                if (last_token == TOKEN.TOK_PLUS)
-                    RetValue = new UnaryPlus(RetValue);
-                else
-                    RetValue = new UnaryMinus(RetValue);
-            } else if (currentToken == TOKEN.TOK_UNQUOTED_STRING) {
-                ///
-                /// Variables
-                ///
-                String str = this.last_string;
-                SymbolInfo inf = context.getSymbolTable().get(str);
-                if (inf == null)
-                    throw new Exception("Undefined symbol");
-                getNextToken();
-                RetValue = new Variable(inf);
-            } else {
-                System.out.println("Illegal Token");
-                throw new Exception();
+            if (pb.TypeCheck(exp) != TypeInfo.TYPE_BOOL) {
+                throw new Exception("Expects a boolean expression");
             }
-            return RetValue;
+
+            ArrayList body = StatementList(pb);
+
+            if ((currentToken != TOKEN.TOK_WHILE_END)) {
+                System.out.println("While end Expected");
+                throw new Exception("Wend Expected");
+            }
+
+            return new WhileStatement(exp, body);
         } catch (Exception exception) {
-            System.out.println(exception);
             throw exception;
         }
     }

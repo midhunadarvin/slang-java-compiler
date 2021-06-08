@@ -35,7 +35,7 @@ public enum TOKEN {
     TOK_LESS_OR_EQUAL, // '<='
     TOK_AND, // '&&'
     TOK_OR, // '||'
-    TOK_NOT, // '!
+    TOK_NOT, // '!'
 
     // Control structures support
     TOK_IF, // IF

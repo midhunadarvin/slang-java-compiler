@@ -19,6 +19,13 @@ public class LogicalExpression extends Expression {
     /* Type of the node... */
     TypeInfo _type;
 
+    public LogicalExpression(TOKEN m_op, Expression ex1, Expression ex2) {
+        super();
+        this.m_op = m_op;
+        this.ex1 = ex1;
+        this.ex2 = ex2;
+    }
+
 
     @Override
     public SymbolInfo Evaluate(RUNTIME_CONTEXT context) throws Exception {

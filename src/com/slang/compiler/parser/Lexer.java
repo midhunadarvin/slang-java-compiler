@@ -113,8 +113,13 @@ public class Lexer {
                 break;
             }
             case '!':
-                tok = TOKEN.TOK_NOT;
-                index++;
+                if (IExpr.charAt(index + 1) == '=') {
+                    tok = TOKEN.TOK_NOT_EQUALS;
+                    index += 2;
+                } else {
+                    tok = TOKEN.TOK_NOT;
+                    index++;
+                }
                 break;
             case '>':
                 if (IExpr.charAt(index + 1) == '=') {

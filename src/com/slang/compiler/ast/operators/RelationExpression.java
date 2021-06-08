@@ -32,6 +32,13 @@ public class RelationExpression extends Expression {
 
     TypeInfo _optype;
 
+    public RelationExpression(RELATION_OPERATOR m_op, Expression ex1, Expression ex2) {
+        super();
+        this.m_op = m_op;
+        this.ex1 = ex1;
+        this.ex2 = ex2;
+    }
+
     /**
      * The logic of this method is obvious...
      * Evaluate the Left and Right Expression...
@@ -69,7 +76,7 @@ public class RelationExpression extends Expression {
             if (m_op == RELATION_OPERATOR.TOK_EQUALS) {
                 ret_val.boolean_val = eval_left.string_val.equals(eval_right.string_val);
             } else if (m_op == RELATION_OPERATOR.TOK_NOT_EQUALS) {
-                ret_val.boolean_val = eval_left.string_val.equals(eval_right.string_val);
+                ret_val.boolean_val = !eval_left.string_val.equals(eval_right.string_val);
             } else {
                 ret_val.boolean_val = false;
             }
